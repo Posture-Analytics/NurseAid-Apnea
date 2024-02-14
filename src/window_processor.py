@@ -1,5 +1,6 @@
 import cv2
 import json
+import os
 
 import numpy as np
 
@@ -48,6 +49,8 @@ class WindowProcessor:
         self.window_indexes = None
 
         self.window_results = None
+
+        self.window_sum = None
 
         self.evaluate_windows()
 
@@ -211,17 +214,17 @@ class WindowProcessor:
         # TODO: Generate images
 
         # Sum pixels (TODO: plot the sum of pixels)
-        window_sum = self.thermal_data.get_window_sum(window)
+        self.window_sum = self.thermal_data.get_window_sum(window)
 
         # DEBUG
         # Save the timestamps and the sum of pixels into a csv file
         with open("samples.csv", 'w') as f: # TODO: fix this path
-            for key in window_sum.keys():
-                f.write("%s,%s\n"%(key,window_sum[key]))
+            for key in self.window_sum.keys():
+                f.write("%s,%s\n"%(key,self.window_sum[key]))
                 
 
         # Get frequency spectrum (optional: plot the frequency spectrum)
-        frequency_processor_unit = frequency_processor.FrequencyProcessor(window_sum)
+        frequency_processor_unit = frequency_processor.FrequencyProcessor(self.window_sum)
         # frequency_processor_unit.get_frequency_spectrum()
 
         # Set bandpass filter
@@ -305,5 +308,68 @@ class WindowProcessor:
         plt.boxplot(frequencies)
         plt.show()
 
+    def save_window_sum(self, file_name: str) -> None:
+        """
+        Save the sum of pixels of each window into a csv file.
 
-        
+        Args:
+            file_name (str): The name of the file.
+        """
+
+        # Check if the window sum is not None
+        assert self.window_sum is not None
+
+        # Checj if the results folder exists
+        os.makedirs("results", exist_ok=True)
+
+        # Save the timestamps and the sum of pixels into a csv file
+        with open(f"./results/{file_name}.csv", 'w') as f:
+            for key in self.window_sum.keys():
+                f.write("%s,%s\n"%(key,self.window_sum[key]))
+
+    # Iterate over the frames and store the maximum amplitude of each pixel
+    def get_window_amplitude(self, window: dict) -> None:
+        """
+        Get the amplitude of each pixel in the window.
+
+        Args:
+            window (dict): The window of thermal data.
+        """
+
+        # Initialize the minimum and maximum temperatures array
+        min_frame = np.ones_like(list(window.values())[0]) * np.inf
+        max_frame = np.zeros_like(list(window.values())[0])
+
+        # Get the mimimum temperature for each pixel over the window
+        for timestamp, frame in window.items():
+            min_frame = np.minimum(min_frame, frame)
+            max_frame = np.maximum(max_frame, frame)
+
+        # Get the amplitude of each pixel
+        amplitude = max_frame - min_frame
+
+        return amplitude
+
+    def save_window_amplitude(self, file_name: str) -> None:
+        """
+        Save the amplitude of each pixel of each window into a csv file.
+
+        Args:
+            file_name (str): The name of the file.
+        """
+
+        # Checj if the results folder exists
+        os.makedirs("results", exist_ok=True)
+
+        # Get the window
+        window = self.get_window(0)
+
+        # Get the amplitude of each pixel in the window
+        amplitude = self.get_window_amplitude(window)
+
+        # Plot and save the amplitude of each pixel
+        plt.imshow(amplitude, cmap="gray")
+        plt.colorbar()
+        plt.title(f"Amplitude of each pixel ({file_name})")
+        plt.savefig(f"./results/{file_name}_amplitude.png")
+        plt.show()

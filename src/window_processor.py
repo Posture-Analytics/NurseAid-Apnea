@@ -26,7 +26,7 @@ class WindowProcessor:
         window_results (list): A list of results obtained from processing each window.
     """
 
-    def __init__(self, thermal_data, window_parameter_set):
+    def __init__(self, thermal_data, window_parameter_set, show_plots=True):
         """
         Initializes a new instance of the WindowProcessor class.
 
@@ -37,6 +37,7 @@ class WindowProcessor:
 
         self.thermal_data = thermal_data
         self.window_parameter_set = window_parameter_set
+        self.show_plots = show_plots
 
         self.window_size = self.window_parameter_set.get_parameter("window_size")
         self.window_step = self.window_parameter_set.get_parameter("window_step")
@@ -51,6 +52,7 @@ class WindowProcessor:
         self.window_results = None
 
         self.window_sum = None
+        self.window_mean = None
 
         self.evaluate_windows()
 
@@ -205,7 +207,7 @@ class WindowProcessor:
             mask_generator.generate_low_accuracy_mask()
 
         # Plot the mask and the masked mean frame side by side
-        if debug and self.window_parameter_set.get_parameter("mask_type") == "otsu":
+        if debug and self.window_parameter_set.get_parameter("mask_type") == "otsu" and self.show_plots:
             mask_generator.plot_mask(mean_frame)
 
         # Apply the mask to the images
@@ -216,15 +218,20 @@ class WindowProcessor:
         # Sum pixels (TODO: plot the sum of pixels)
         self.window_sum = self.thermal_data.get_window_sum(window)
 
+        self.window_mean = self.window_sum.copy()
+        # Divide each values of the window_mean dict by the number of white pixels on the mask
+        for key in self.window_mean.keys():
+            self.window_mean[key] = self.window_mean[key] / mask_generator.num_white_pixels
+
         # DEBUG
-        # Save the timestamps and the sum of pixels into a csv file
-        with open("samples.csv", 'w') as f: # TODO: fix this path
-            for key in self.window_sum.keys():
-                f.write("%s,%s\n"%(key,self.window_sum[key]))
+        # # Save the timestamps and the sum of pixels into a csv file
+        # with open("samples.csv", 'w') as f: # TODO: fix this path
+        #     for key in self.window_sum.keys():
+        #         f.write("%s,%s\n"%(key,self.window_sum[key]))
                 
 
         # Get frequency spectrum (optional: plot the frequency spectrum)
-        frequency_processor_unit = frequency_processor.FrequencyProcessor(self.window_sum)
+        frequency_processor_unit = frequency_processor.FrequencyProcessor(self.window_sum, self.show_plots)
         # frequency_processor_unit.get_frequency_spectrum()
 
         # Set bandpass filter
@@ -302,11 +309,13 @@ class WindowProcessor:
 
         plt.title("Histogram of 1st frequencies")
 
-        plt.show()
+        if self.show_plots:
+            plt.show()
 
         # Plot a boxplot, each boxplot is a n-th frequency
         plt.boxplot(frequencies)
-        plt.show()
+        if self.show_plots:
+            plt.show()
 
     def save_window_sum(self, file_name: str) -> None:
         """
@@ -323,9 +332,54 @@ class WindowProcessor:
         os.makedirs("results", exist_ok=True)
 
         # Save the timestamps and the sum of pixels into a csv file
-        with open(f"./results/{file_name}.csv", 'w') as f:
+        with open(f"./results/{file_name}_sum.csv", 'w') as f:
             for key in self.window_sum.keys():
                 f.write("%s,%s\n"%(key,self.window_sum[key]))
+
+        # Convert the dictionary keys into integers
+        self.window_sum = {int(k): v for k, v in self.window_sum.items()}
+
+        # Clear any previous plot
+        plt.clf()
+
+        # Save a plot showing the sum of pixels
+        plt.plot(list(self.window_sum.keys()), list(self.window_sum.values()))
+        plt.title(f"Sum of pixels ({file_name})")
+        plt.savefig(f"./results/{file_name}_sum.png")
+        if self.show_plots:
+            plt.show()
+
+    def save_window_mean(self, file_name: str) -> None:
+        """
+        Save the mean of pixels of each window into a csv file.
+
+        Args:
+            file_name (str): The name of the file.
+        """
+
+        # Check if the window mean is not None
+        assert self.window_mean is not None
+
+        # Checj if the results folder exists
+        os.makedirs("results", exist_ok=True)
+
+        # Save the timestamps and the mean of pixels into a csv file
+        with open(f"./results/{file_name}_mean.csv", 'w') as f:
+            for key in self.window_mean.keys():
+                f.write("%s,%s\n"%(key,self.window_mean[key]))
+
+        # Convert the dictionary keys into integers
+        self.window_mean = {int(k): v for k, v in self.window_mean.items()}
+
+        # Clear any previous plot
+        plt.clf()
+
+        # Save a plot showing the mean of pixels
+        plt.plot(list(self.window_mean.keys()), list(self.window_mean.values()))
+        plt.title(f"Mean of pixels ({file_name})")
+        plt.savefig(f"./results/{file_name}_mean.png")
+        if self.show_plots:
+            plt.show()
 
     # Iterate over the frames and store the maximum amplitude of each pixel
     def get_window_amplitude(self, window: dict) -> None:
@@ -380,4 +434,5 @@ class WindowProcessor:
         plt.colorbar()
         plt.title(f"Amplitude of each pixel ({file_name})")
         plt.savefig(f"./results/{file_name}_amplitude.png")
-        plt.show()
+        if self.show_plots:
+            plt.show()

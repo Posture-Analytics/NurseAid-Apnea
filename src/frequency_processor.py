@@ -19,7 +19,7 @@ class FrequencyProcessor:
         highest_frequencies (list): A list of tuples containing the n highest frequencies and their amplitudes.
     """
 
-    def __init__(self, window_sample: dict):
+    def __init__(self, window_sample: dict, show_plots: bool = True):
         """
         Initializes a new instance of the FrequencyProcessor class.
 
@@ -28,6 +28,7 @@ class FrequencyProcessor:
         """
 
         self.window_sample = window_sample
+        self.show_plots = show_plots
 
         self.window_duration = None
 
@@ -229,7 +230,9 @@ class FrequencyProcessor:
 
         # Plot the IFFT
         plt.plot(self.ifft_y)
-        plt.show()
+
+        if self.show_plots:
+            plt.show()
 
     # def process_signal(self, n_freqs: int = 5, lowcut: float = 0.1, highcut: float = 1.0) -> None:
     #     """
@@ -328,6 +331,7 @@ class FrequencyProcessor:
         filtered_signal = np.fft.ifft(fft_result_filtered)
         
         # Select the top N frequencies
+
         # Find indices of the top N amplitudes within the bandpass range
         top_indices = np.argsort(fft_ampl[band_mask])[-n_freqs:]
         top_freqs = fft_freq[band_mask][top_indices]
@@ -336,6 +340,10 @@ class FrequencyProcessor:
         # Print the top frequencies and their corresponding amplitudes
         print("Top frequencies:")
         for i in range(n_freqs):
+
+            if i >= len(top_freqs):
+                break
+
             print("{:.2f}Hz: {:.2f}".format(top_freqs[i], top_ampls[i]))
 
         # Find the peaks
@@ -374,7 +382,8 @@ class FrequencyProcessor:
         plt.xlabel('Frequency (Hz)')
         plt.ylabel('Amplitude')
         plt.tight_layout()
-        plt.show()
+        if self.show_plots:
+            plt.show()
     
     def count_peaks(self) -> int:
         """

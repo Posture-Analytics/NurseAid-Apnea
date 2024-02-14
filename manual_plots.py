@@ -8,7 +8,12 @@ import matplotlib.pyplot as plt
 # Disable globally the matplotlib show function
 plt.ioff()
 
-sample_files = ["02_13_lucas_back_02hz",
+sample_files = ["01_24_almir_back_03hz",
+                "02_09_almir_back_03hz",
+                "02_09_almir_left_03hz",
+                "02_09_lucas_back_03hz",
+                "02_09_lucas_left_03hz",
+                "02_13_lucas_back_02hz",
                 "02_13_lucas_back_04hz",
                 "02_13_lucas_back_05hz",
                 "02_13_lucas_left_02hz",

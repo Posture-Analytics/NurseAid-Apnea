@@ -350,7 +350,7 @@ class WindowProcessor:
 
         return amplitude
 
-    def save_window_amplitude(self, file_name: str) -> None:
+    def save_window_amplitude(self, file_name: str, supress_low_accuracy_areas: bool = False) -> None:
         """
         Save the amplitude of each pixel of each window into a csv file.
 
@@ -366,6 +366,14 @@ class WindowProcessor:
 
         # Get the amplitude of each pixel in the window
         amplitude = self.get_window_amplitude(window)
+
+        # Supress low accuracy areas
+        if supress_low_accuracy_areas:
+            mask_generator = masks.FrameMask()
+            mask_generator.generate_low_accuracy_mask()
+            
+            # Apply the mask to the images
+            amplitude = mask_generator.apply_mask(amplitude)
 
         # Plot and save the amplitude of each pixel
         plt.imshow(amplitude, cmap="gray")

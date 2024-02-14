@@ -45,4 +45,4 @@ for file in sample_files:
     window_processor_unit.save_window_sum(file)
 
     # Save the window_amplitude
-    window_processor_unit.save_window_amplitude(file)
+    window_processor_unit.save_window_amplitude(file, supress_low_accuracy_areas=True)

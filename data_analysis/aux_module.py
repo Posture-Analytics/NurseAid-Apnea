@@ -64,7 +64,7 @@ def filter_frequencies(signal, fs, band_mask, n_most_significant):
     mask = (freqs >= band_mask[0]) & (freqs <= band_mask[1])
     filtered_frequencies = freqs[mask]
     filtered_fft = fft_values[mask]
-    print("Filtered frequencies: "+ str(filtered_frequencies))
+    #print("Filtered frequencies: "+ str(filtered_frequencies))
 
     # Compute power spectral density
     psd = np.abs(filtered_fft) ** 2
@@ -358,3 +358,22 @@ def plot_intervals(time_series, intervals, decimals):
     plt.show()
     
     return
+
+def nyquist_truncator(intervals, nyquist_magic_number):
+    size = len(intervals)
+    
+    for i in range(size): # goes through every element in intervals
+        if (intervals[i][2] == True): # if stationary, subdivides
+            prev_value = intervals[i][0]
+            if (intervals[i][1] - intervals[i][0] > nyquist_magic_number): # does the element have more then the magic number?
+                for j in range(intervals[i][0], intervals[i][1] - 2*nyquist_magic_number - intervals[i][0], nyquist_magic_number): # truncates 
+                    next_value = j + nyquist_magic_number
+                    intervals.append((prev_value, next_value, True, intervals[i][3]))
+                    prev_value = next_value
+                # now the end of the element
+                intervals.append((prev_value, intervals[i][1], True, intervals[i][3]))
+            else: # just append the value already present
+                intervals.append((intervals[i][0], intervals[i][1], True, intervals[i][3]))
+            
+    for i in range(size):
+        intervals.pop(0)

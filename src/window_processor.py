@@ -237,90 +237,45 @@ class WindowProcessor:
 
         # Get frequency spectrum (optional: plot the frequency spectrum)
         frequency_processor_unit = frequency_processor.FrequencyProcessor(self.window_sum, self.show_plots)
-        # frequency_processor_unit.get_frequency_spectrum()
-
-        # Set bandpass filter
-        # frequency_processor_unit.set_bandpass_filter(lowcut=self.window_parameter_set.get_parameter("bandpass_low_cut"), 
-        #                                              highcut=self.window_parameter_set.get_parameter("bandpass_high_cut"))
-
-        # # Get the n highest peaks (amplitude) and respective frequencies
-        # highest_frequencies = frequency_processor_unit.get_highest_frequencies(n=5)
-    
-        # print(highest_frequencies)
-
-        # return highest_frequencies
-
-        # Apply the IFFT to the n highest peaks (optional: plot the IFFT)
-        # frequency_processor_unit.reconstruct_time_domain_signal()
-
-        # Count the number of peaks in the IFFT using scipy.signal.find_peaks
-        # num_peaks = frequency_processor_unit.count_peaks()
-
-        # print(num_peaks)
-
-
-
         frequency_processor_unit.process_signal()
 
+        # Get the spectrum as a result
+        spectrum = frequency_processor_unit.spectrum
 
-
-        # Return the number of peaks and respiratory rate (in Hz and BPM)
-        # return num_peaks
-
-        # Evaluate the respiratory rate
-        # respiratory_rate = frequency_processor_unit.get_respiratory_rate(unit="BPM")
-        # print(respiratory_rate)
-
-        # return respiratory_rate
+        return spectrum
 
 # TODO: find a place to plot the pixels amplitude
     
-    def merge_window_results(self, only_first_frequency: bool = True) -> None:
+    def merge_sliding_window_results(self, respiratory_freq, only_first_frequency: bool = True) -> None:
         """
-        Merge the results of the windows into a single result.
-
-        Args:
-            only_first_frequency (bool): Whether to consider only the first frequency. Default is True.
+        Merge the results of the windows into statistics
         """
-        
-        # Each result is a list of tuples (frequency, amplitude)
-        # Concatenate the lists of tuples
-        merged_results = []
 
-        for window_results in self.window_results:
+        # Evaluate the RMSE, MAE and R2 of the frequency peaks, compared to the respiratory frequency
+        rmse = 0
+        mae = 0
+        r2 = 0
 
+        for window_result in self.window_results:
+            # Get the frequency peaks
+            frequency_peaks = [peak[0] for peak in window_result]
+
+            # Get the first frequency peak
             if only_first_frequency:
-                merged_results.append(window_results[0])
-            else:
-                merged_results += window_results
+                frequency_peaks = frequency_peaks[0]
 
-        # Sort the list of tuples by amplitude
-        merged_results.sort(key=lambda x: x[1], reverse=True)
-
-        # Plot a histogram of the frequencies
-        frequencies, amplitudes = zip(*merged_results)
-
-        plt.hist(frequencies, bins=100)
-
-        # Plot a dashed line indicating the mean frequency
-        mean_frequency = np.mean(frequencies)
-        plt.axvline(mean_frequency, color="red", linestyle="dashed")
-
-        # Plot a pointed line indicating the median frequency
-        median_frequency = np.median(frequencies)
-        plt.axvline(median_frequency, color="green", linestyle="dashed")
-
-        plt.legend()
-
-        plt.title("Histogram of 1st frequencies")
-
-        if self.show_plots:
-            plt.show()
-
-        # Plot a boxplot, each boxplot is a n-th frequency
-        plt.boxplot(frequencies)
-        if self.show_plots:
-            plt.show()
+            # Get the RMSE of the frequency peaks
+            rmse += np.sqrt(np.mean((np.array(frequency_peaks) - respiratory_freq) ** 2))
+            # Get the MAE of the frequency peaks
+            mae += np.mean(np.abs(np.array(frequency_peaks) - respiratory_freq))
+            # Get the R2 of the frequency peaks
+            r2 += 1 - (np.sum((np.array(frequency_peaks) - respiratory_freq) ** 2) / np.sum((np.array(frequency_peaks) - np.mean(frequency_peaks)) ** 2))
+        
+        # Get the mean RMSE
+        self.rmse = rmse / len(self.window_results)
+        # Get the mean MAE
+        self.mae = mae / len(self.window_results)
+        self.r2 = r2 / len(self.window_results)
 
     def save_window_sum(self, file_name: str) -> None:
         """

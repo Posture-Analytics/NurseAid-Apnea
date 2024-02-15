@@ -6,17 +6,18 @@ BANDPASS_LOW_CUT: List[float] = [0.1]
 BANDPASS_HIGH_CUT: List[float] = [0.7]
 
 # Variable parameters
-WINDOW_SIZE: List[int] = [15, 20, 25, 30]  # in seconds
-WINDOW_STEP: List[int] = [1, 3, 5, 7, 9, 11]  # in seconds
-MINIMUM_TEMPERATURE: List[int] = [22, 28]
-MAXIMUM_TEMPERATURE: List[int] = [35]
+WINDOW_SIZE: List[int] = [5, 10, 15, 20, 25, 30]  # in seconds
+# WINDOW_STEP: List[int] = [1, 3, 5, 7, 9, 11]  # in seconds
+MINIMUM_TEMPERATURE: List[int] = [18, 20, 22, 24]
+MAXIMUM_TEMPERATURE: List[int] = [30, 32, 34, 36]
 GAUSSIAN_BLUR_KERNEL_SIZES: List[int] = [1, 3, 5]
 MASK_TYPE: List[str] = ["otsu"]
 MASK_LOW_ACCURACY_AREA: List[bool] = [True]
+MASK_COLUMNS: List[Tuple[int, int]] = [(4, 25)]
 
 # Conditional parameters
 DILATE_KERNEL_SIZES: List[int] = [3, 5]  # if MASK_TYPE == "otsu"
-BOX_COORDINATES: List[Tuple[int, int, int, int]] = [(0, 0, 32, 24)]  # if MASK_TYPE == "box"
+# BOX_COORDINATES: List[Tuple[int, int, int, int]] = [(0, 0, 32, 24)]  # if MASK_TYPE == "box"
 
 
 class ParameterSet:
@@ -136,14 +137,18 @@ def generate_parameter_sets() -> List[ParameterSet]:
     parameter_sets = []
 
     # Generate the parameter sets
-    for window_size, window_step, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy \
-        in product(WINDOW_SIZE, WINDOW_STEP, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA):
+    # for window_size, window_step, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy \
+    #     in product(WINDOW_SIZE, WINDOW_STEP, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA):
+
+    for window_size, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy, mask_columns \
+        in product(WINDOW_SIZE, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA, MASK_COLUMNS):
 
         base_parameter_set = ParameterSet()
 
         # Add the parameters to the parameter set
         base_parameter_set.add_parameter("window_size", window_size)
-        base_parameter_set.add_parameter("window_step", window_step)
+        # base_parameter_set.add_parameter("window_step", window_step)
+        base_parameter_set.add_parameter("window_step", window_size)
         base_parameter_set.add_parameter("min_temp", min_temp)
         base_parameter_set.add_parameter("max_temp", max_temp)
         base_parameter_set.add_parameter("gaussian_blur_kernel_size", gaussian_blur_kernel_size)
@@ -151,6 +156,7 @@ def generate_parameter_sets() -> List[ParameterSet]:
         base_parameter_set.add_parameter("bandpass_low_cut", bandpass_low_cut)
         base_parameter_set.add_parameter("bandpass_high_cut", bandpass_high_cut)
         base_parameter_set.add_parameter("mask_low_accuracy", mask_low_accuracy)
+        base_parameter_set.add_parameter("mask_columns", mask_columns)
 
         complete_parameter_sets = []
 
@@ -165,15 +171,15 @@ def generate_parameter_sets() -> List[ParameterSet]:
                 # Append the parameter set to the list
                 complete_parameter_sets.append(new_parameter_set)
 
-        elif (mask_type == "box"):
-            for box_coordinates in BOX_COORDINATES:
-                # Create a copy of the parameter set
-                new_parameter_set = base_parameter_set.copy()
-                # Add the conditional parameter to the parameter set
-                new_parameter_set.add_parameter("box_coordinates", box_coordinates)
+        # elif (mask_type == "box"):
+        #     for box_coordinates in BOX_COORDINATES:
+        #         # Create a copy of the parameter set
+        #         new_parameter_set = base_parameter_set.copy()
+        #         # Add the conditional parameter to the parameter set
+        #         new_parameter_set.add_parameter("box_coordinates", box_coordinates)
 
-                # Append the parameter set to the list
-                complete_parameter_sets.append(new_parameter_set)
+        #         # Append the parameter set to the list
+        #         complete_parameter_sets.append(new_parameter_set)
 
         for parameter_set in complete_parameter_sets:
             # Generate a code for the parameter set

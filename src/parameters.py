@@ -13,7 +13,8 @@ MAXIMUM_TEMPERATURE: List[int] = [30, 32, 34, 36]
 GAUSSIAN_BLUR_KERNEL_SIZES: List[int] = [1, 3, 5]
 MASK_TYPE: List[str] = ["otsu"]
 MASK_LOW_ACCURACY_AREA: List[bool] = [True]
-MASK_COLUMNS: List[Tuple[int, int]] = [(4, 25)]
+# MASK_COLUMNS: List[Tuple[int, int]] = [(4, 25)]
+MASK_BORDERS: List[int] = [5]
 
 # Conditional parameters
 DILATE_KERNEL_SIZES: List[int] = [3, 5]  # if MASK_TYPE == "otsu"
@@ -140,8 +141,11 @@ def generate_parameter_sets() -> List[ParameterSet]:
     # for window_size, window_step, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy \
     #     in product(WINDOW_SIZE, WINDOW_STEP, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA):
 
-    for window_size, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy, mask_columns \
-        in product(WINDOW_SIZE, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA, MASK_COLUMNS):
+    # for window_size, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy, mask_columns \
+    #     in product(WINDOW_SIZE, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA, MASK_COLUMNS):
+
+    for window_size, min_temp, max_temp, gaussian_blur_kernel_size, mask_type, bandpass_low_cut, bandpass_high_cut, mask_low_accuracy, mask_borders \
+        in product(WINDOW_SIZE, MINIMUM_TEMPERATURE, MAXIMUM_TEMPERATURE, GAUSSIAN_BLUR_KERNEL_SIZES, MASK_TYPE, BANDPASS_LOW_CUT, BANDPASS_HIGH_CUT, MASK_LOW_ACCURACY_AREA, MASK_BORDERS):
 
         base_parameter_set = ParameterSet()
 
@@ -156,7 +160,7 @@ def generate_parameter_sets() -> List[ParameterSet]:
         base_parameter_set.add_parameter("bandpass_low_cut", bandpass_low_cut)
         base_parameter_set.add_parameter("bandpass_high_cut", bandpass_high_cut)
         base_parameter_set.add_parameter("mask_low_accuracy", mask_low_accuracy)
-        base_parameter_set.add_parameter("mask_columns", mask_columns)
+        base_parameter_set.add_parameter("mask_borders", mask_borders)
 
         complete_parameter_sets = []
 

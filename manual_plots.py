@@ -48,10 +48,11 @@ for file in sample_files:
     parameter_set.add_parameter("bandpass_low_cut", 0.0)
     parameter_set.add_parameter("bandpass_high_cut", 1.0)
     parameter_set.add_parameter("mask_low_accuracy", True)
-    parameter_set.add_parameter("mask_columns", (4, 25))
+    # parameter_set.add_parameter("mask_columns", (4, 25))
+    parameter_set.add_parameter("mask_borders", 5)
 
     # Process the window
-    window_processor_unit = window_processor.WindowProcessor(thermal_data, parameter_set, show_plots=False)
+    window_processor_unit = window_processor.WindowProcessor(thermal_data, parameter_set, show_plots=True)
 
     print("Processing window {}...".format(file))
     print("Number of windows: ", len(window_processor_unit.window_indexes))

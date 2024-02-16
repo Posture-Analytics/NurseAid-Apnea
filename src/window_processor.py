@@ -207,9 +207,13 @@ class WindowProcessor:
             mask_generator.generate_low_accuracy_mask()
 
         # Mask the columns to isolate the torax and abdomen
-        if columns_to_mask := self.window_parameter_set.get_parameter("mask_columns"):
-            mask_box_coordinates = (columns_to_mask[0], 0, columns_to_mask[1], 24)
-            mask_generator.generate_box_mask(mask_box_coordinates)
+            
+        # if columns_to_mask := self.window_parameter_set.get_parameter("mask_columns"):
+        #     mask_box_coordinates = (columns_to_mask[0], 0, columns_to_mask[1], 24)
+        #     mask_generator.generate_box_mask(mask_box_coordinates)
+            
+        if border_to_mask := self.window_parameter_set.get_parameter("mask_borders"):
+            mask_generator.generate_box_mask((border_to_mask, border_to_mask, 31-border_to_mask, 23-border_to_mask))
 
         # Plot the mask and the masked mean frame side by side
         if debug and self.window_parameter_set.get_parameter("mask_type") == "otsu" and self.show_plots:

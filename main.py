@@ -11,17 +11,18 @@ import pandas as pd
 
 from tqdm import tqdm
 
-filenames = ["01_24_almir_back_03hz",
-             "02_09_almir_back_03hz",
-             "02_09_almir_left_03hz",
-             "02_09_lucas_back_03hz",
-             "02_09_lucas_left_03hz",
+filenames = [#"01_24_almir_back_03hz",
+             #"02_09_almir_back_03hz",
+             #"02_09_almir_left_03hz",
+             #"02_09_lucas_back_03hz",
+             #"02_09_lucas_left_03hz",
              "02_13_lucas_back_02hz",
-             "02_13_lucas_back_04hz",
-             "02_13_lucas_back_05hz",
+             #"02_13_lucas_back_04hz",
+             #"02_13_lucas_back_05hz",
              "02_13_lucas_left_02hz",
-             "02_13_lucas_left_04hz",
-             "02_13_lucas_left_05hz"]
+             #"02_13_lucas_left_04hz",
+             #"02_13_lucas_left_05hz"
+             ]
 
 grid_search_parameters = parameters.generate_parameter_sets()
 print(len(grid_search_parameters), "parameter sets generated.")
@@ -42,8 +43,8 @@ for filename in filenames:
 
     for parameter_set in grid_search_parameters:
 
-        print("Running parameter set:")
-        print(parameter_set)
+        ##print("Running parameter set:")
+        ##print(parameter_set)
 
         thermal_data_copy = thermal_data.copy()
 
@@ -57,13 +58,13 @@ for filename in filenames:
 
         # Extract the original respiratory frequency from the filename
         respiratory_frequency = int(filename.split("_")[-1].split("hz")[0])/10.0
-        print("True respiratory frequency: ", respiratory_frequency)
+        ##print("True respiratory frequency: ", respiratory_frequency)
 
         window_processor_unit.merge_sliding_window_results(respiratory_frequency)
 
-        print("RMSE: ", window_processor_unit.rmse)
-        print("MAE: ", window_processor_unit.mae)
-        print("R2: ", window_processor_unit.r2)
+        ##print("RMSE: ", window_processor_unit.rmse)
+        ##print("MAE: ", window_processor_unit.mae)
+        ##print("R2: ", window_processor_unit.r2)
 
         # Store the results into a dictionary
         results_dict = {}
@@ -91,7 +92,7 @@ for filename in filenames:
 
 pbar.close()
 
-print(grid_search_results)
+##print(grid_search_results)
 
 # Save the results to a CSV file
 grid_search_results.to_csv("grid_search_results.csv", index=False)

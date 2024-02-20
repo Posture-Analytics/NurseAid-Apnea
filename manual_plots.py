@@ -8,29 +8,22 @@ import matplotlib.pyplot as plt
 # Disable globally the matplotlib show function
 plt.ioff()
 
-<<<<<<< HEAD
 sample_files = [
-=======
-sample_files = ["02_15_lucas_left_01hz",
-                "02_15_lucas_back_01hz",
-                "02_15_lucas_right_01hz",
-                "02_15_lucas_right_02hz",
->>>>>>> 276389080fe53ec0750b5e64e4cf84c80ec656bb
-                "01_24_almir_back_03hz",
-                "02_09_almir_back_03hz",
-                "02_09_almir_left_03hz",
-                "02_09_lucas_back_03hz",
-                "02_09_lucas_left_03hz",
-                "02_13_lucas_back_02hz", #####
-                "02_13_lucas_back_04hz",
-                "02_13_lucas_back_05hz",
-                "02_13_lucas_left_02hz", #####
-                "02_13_lucas_left_04hz",
-                "02_13_lucas_left_05hz",
-                "02_15_lucas_back_01hz",
-                "02_15_lucas_left_01hz",
-                "02_15_lucas_right_01hz",
-                "02_15_lucas_right_02hz"
+                #"01_24_almir_back_03hz",
+                #"02_09_almir_back_03hz",
+                #"02_09_almir_left_03hz",
+                #"02_09_lucas_back_03hz",
+                #"02_09_lucas_left_03hz",
+                #"02_13_lucas_back_02hz", 
+                #"02_13_lucas_back_04hz",
+                #"02_13_lucas_back_05hz",
+                "02_13_lucas_left_02hz"#, 
+                #"02_13_lucas_left_04hz",
+                #"02_13_lucas_left_05hz",
+                #"02_15_lucas_back_01hz",
+                #"02_15_lucas_left_01hz",
+                #"02_15_lucas_right_01hz",
+                #"02_15_lucas_right_02hz"
                 ]
 
 # window_sizes = [5, 10, 15, 20, 25, 30]
@@ -52,17 +45,17 @@ for file in sample_files:
     parameter_set.add_parameter("window_size", int(len(thermal_data.samples) / 8))
     # parameter_set.add_parameter("window_size", window_size)
 
-    parameter_set.add_parameter("window_step", 10000) # Very high value to evaluate just one window
-    parameter_set.add_parameter("min_temp", 21)
-    parameter_set.add_parameter("max_temp", 37)
-    parameter_set.add_parameter("gaussian_blur_kernel_size", 3)
-    parameter_set.add_parameter("mask_type", "otsu")
-    parameter_set.add_parameter("dilate_kernel_size", 3)
-    parameter_set.add_parameter("bandpass_low_cut", 0.0)
-    parameter_set.add_parameter("bandpass_high_cut", 1.0)
-    parameter_set.add_parameter("mask_low_accuracy", True)
+    parameter_set.add_parameter("window_step", 60) # 10000    # Very high value to evaluate just one window
+    parameter_set.add_parameter("min_temp", 18) # 21
+    parameter_set.add_parameter("max_temp", 32) # 37
+    parameter_set.add_parameter("gaussian_blur_kernel_size", 1) # 3
+    parameter_set.add_parameter("mask_type", "otsu") # "otsu"
+    parameter_set.add_parameter("dilate_kernel_size", 3) # 3
+    parameter_set.add_parameter("bandpass_low_cut", 0.04) # 0.0
+    parameter_set.add_parameter("bandpass_high_cut", 0.7) # 1.0
+    parameter_set.add_parameter("mask_low_accuracy", True) # True
     # parameter_set.add_parameter("mask_columns", (4, 25))
-    parameter_set.add_parameter("mask_borders", 5)
+    parameter_set.add_parameter("mask_borders", 5) # 5
 
     # Process the window
     window_processor_unit = window_processor.WindowProcessor(thermal_data, parameter_set, show_plots=False)

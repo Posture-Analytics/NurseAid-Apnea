@@ -267,6 +267,30 @@ def generate_signal(frequencies, fft_coefficients, n, fs):
     
     return result
 
+def generate__continuously_variable_signal(frequencies, scale, fft_coefficients, n, fs):
+    
+    if(len(frequencies) != len(fft_coefficients)):
+        raise Exeption("Inputs must have same size!")
+
+    result = []
+    freq = np.array(frequencies)
+    fft_coef = np.array(fft_coefficients)
+    ## t = np.arange(0, n, 1/fs)  # Time array
+    t = np.linspace(0, n/fs, num=n, endpoint=True, dtype=None, axis=0)
+    scale_index = range(n)
+    element = 0
+
+    for i, index in zip(t, scale_index):
+        element = 0
+
+        for j in range(len(frequencies)):
+
+            element += fft_coef[j] * np.exp(1j * 2 * np.pi * freq[j] * i* scale[index])
+
+        result.append(element/(len(t)))
+    
+    return result
+
 def recursive_binary_TEST(intervals, time_series, a, b, fs):
 
     if (b-a)/fs<20: # Verify if the interval is less than the mean duration of apnea events (verifying of the number is needed)

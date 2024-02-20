@@ -388,3 +388,28 @@ class ThermalProcessor:
     #     with open("samples.csv", 'w') as f: # TODO: fix this path
     #         for timestamp, sample in self.samples.items():
     #             f.write(f"{timestamp},{sample}\n")
+
+    def rotate_and_mirror_samples(self) -> None:
+        """
+        Rotate and mirror the samples.
+        """
+
+        assert self.samples is not None
+
+        # Initialize the dictionary for the rotated and mirrored samples
+        rotated_and_mirrored_samples = {}
+
+        # Iterate over each sample
+        for timestamp, sample in self.samples.items():
+
+            # Rotate the sample 180 degrees clockwise
+            rotated_sample = np.rot90(sample, k=2, axes=(1, 0))
+
+            # Mirror the sample
+            mirrored_sample = np.fliplr(rotated_sample)
+
+            # Assign the mirrored sample to the dictionary
+            rotated_and_mirrored_samples[timestamp] = mirrored_sample
+
+        # Update the samples
+        self.samples = rotated_and_mirrored_samples

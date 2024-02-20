@@ -4,6 +4,8 @@ import os
 
 import numpy as np
 
+from PIL import Image
+
 from src import masks
 from src import frequency_processor
 
@@ -384,6 +386,7 @@ class WindowProcessor:
 
         # Get the amplitude of each pixel in the window
         amplitude = self.get_window_amplitude(window)
+        self.save_simple_images(amplitude, file_name + "_amplitude_raw")
 
         # Supress low accuracy areas
         if supress_low_accuracy_areas:
@@ -392,6 +395,15 @@ class WindowProcessor:
             
             # Apply the mask to the images
             amplitude = mask_generator.apply_mask(amplitude)
+            
+        self.save_simple_images(amplitude, file_name + "_amplitude_no_corners", mask="corners")
+
+        # Supress borders
+        mask_generator = masks.FrameMask()
+        mask_generator.generate_box_mask((5, 5, 27, 19))
+        amplitude = mask_generator.apply_mask(amplitude)
+
+        self.save_simple_images(amplitude, file_name + "_amplitude_no_borders", mask="borders")
 
         # Plot and save the amplitude of each pixel
         plt.imshow(amplitude, cmap="gray")
@@ -400,3 +412,77 @@ class WindowProcessor:
         plt.savefig(f"./results/{file_name}_amplitude.png")
         if self.show_plots:
             plt.show()
+
+    def save_mean_frame(self, file_name: str) -> None:
+        """
+        Save the mean frame of each window into a csv file.
+
+        Args:
+            file_name (str): The name of the file.
+        """
+
+        # Checj if the results folder exists
+        os.makedirs("results", exist_ok=True)
+
+        # Get the window
+        window = self.get_window(0)
+
+        # Get the mean frame of the window
+        mean_frame = self.thermal_data.get_mean_frame(window)
+
+        self.save_simple_images(mean_frame, file_name + "_mean_frame", normalize=False)
+
+    def save_simple_images(self, frame, name, upscale_factor=10, mask=None, normalize=True):
+        """
+        Save the frame as a simple image.
+
+        Args:
+            frame (np.array): The frame to be saved.
+            upscale_factor (int): The upscale factor. Default is 10.
+        """
+
+        
+        # Converting the list of temperatures into a 32x24 array
+        temperature_array = np.array(frame).reshape(24, 32)
+
+        if normalize:
+
+            min_temp = temperature_array.min()
+            max_temp = temperature_array.max()
+
+            if min_temp == 0:
+                # Catch the next minimum value
+                min_temp = temperature_array[temperature_array != 0].min()
+
+            # Normalize the temperature values into the range (0, 255)
+            temperature_array = (temperature_array - min_temp) / (max_temp - min_temp) * 255
+
+        if mask:
+
+            # Apply the mask to the images
+            if mask == "corners":
+                mask_generator = masks.FrameMask()
+                mask_generator.generate_low_accuracy_mask()
+                temperature_array = mask_generator.apply_mask(temperature_array)
+
+            if mask == "borders":
+                mask_generator = masks.FrameMask()
+                mask_generator.generate_box_mask((5, 5, 27, 19))
+                temperature_array = mask_generator.apply_mask(temperature_array)
+
+        # Upscale the frame
+        temperature_array = np.repeat(np.repeat(temperature_array, upscale_factor, axis=0), upscale_factor, axis=1)
+
+        print(temperature_array.shape)
+
+        # Create and save the image
+        image = Image.fromarray(temperature_array.astype(np.uint8), 'L')  # 'L' mode is for grayscale
+        image.save(f"./results/{name}.png")
+
+    def rotate_and_mirror_samples(self) -> None:
+        """
+        Rotate and mirror the samples to increase the number of samples.
+        """
+
+        # Rotate 180 degrees and mirror the samples
+        self.thermal_data.rotate_and_mirror_samples()

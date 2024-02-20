@@ -51,6 +51,7 @@ for filename in filenames:
         window_processor_unit = window_processor.WindowProcessor(thermal_data_copy, parameter_set, show_plots=False)
 
         window_processor_unit.process()
+
         # Get the results
         window_results = window_processor_unit.window_results
 

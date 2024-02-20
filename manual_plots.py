@@ -8,17 +8,23 @@ import matplotlib.pyplot as plt
 # Disable globally the matplotlib show function
 plt.ioff()
 
-sample_files = ["01_24_almir_back_03hz",
+sample_files = [
+                "01_24_almir_back_03hz",
                 "02_09_almir_back_03hz",
                 "02_09_almir_left_03hz",
                 "02_09_lucas_back_03hz",
                 "02_09_lucas_left_03hz",
-                "02_13_lucas_back_02hz",
+                "02_13_lucas_back_02hz", #####
                 "02_13_lucas_back_04hz",
                 "02_13_lucas_back_05hz",
-                "02_13_lucas_left_02hz",
+                "02_13_lucas_left_02hz", #####
                 "02_13_lucas_left_04hz",
-                "02_13_lucas_left_05hz"]
+                "02_13_lucas_left_05hz",
+                "02_15_lucas_back_01hz",
+                "02_15_lucas_left_01hz",
+                "02_15_lucas_right_01hz",
+                "02_15_lucas_right_02hz"
+                ]
 
 # window_sizes = [5, 10, 15, 20, 25, 30]
 
@@ -52,13 +58,15 @@ for file in sample_files:
     parameter_set.add_parameter("mask_borders", 5)
 
     # Process the window
-    window_processor_unit = window_processor.WindowProcessor(thermal_data, parameter_set, show_plots=True)
+    window_processor_unit = window_processor.WindowProcessor(thermal_data, parameter_set, show_plots=False)
+
+    window_processor_unit.rotate_and_mirror_samples()
 
     print("Processing window {}...".format(file))
     print("Number of windows: ", len(window_processor_unit.window_indexes))
 
     window_processor_unit.process()
-
+    
     # Save the widnow_sum into a csv file
     window_processor_unit.save_window_sum(file)
 
@@ -67,5 +75,7 @@ for file in sample_files:
 
     # Save the window_amplitude
     window_processor_unit.save_window_amplitude(file, supress_low_accuracy_areas=True)
+
+    window_processor_unit.save_mean_frame(file)
 
     print("Window {} processed.".format(file), "\n\n")

@@ -6,7 +6,8 @@ BANDPASS_LOW_CUT: List[float] = [0.1]
 BANDPASS_HIGH_CUT: List[float] = [0.7]
 
 # Variable parameters
-WINDOW_SIZE: List[int] = [5, 10, 15, 20, 25, 30]  # in seconds
+# WINDOW_SIZE: List[int] = [5, 10, 15, 20, 25, 30]  # in seconds
+WINDOW_SIZE: List[int] = [60]  # in seconds
 # WINDOW_STEP: List[int] = [1, 3, 5, 7, 9, 11]  # in seconds
 MINIMUM_TEMPERATURE: List[int] = [18, 20, 22, 24]
 MAXIMUM_TEMPERATURE: List[int] = [30, 32, 34, 36]

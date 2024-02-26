@@ -105,7 +105,7 @@ def plot_signals(original_signal, filtered_signal, fs, label):
     """
 
     # Plot the original and filtered signals
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(6, 3))
 
     plt.subplot(1, 1, 1)
     plt.plot(np.arange(len(original_signal)) / fs, original_signal, label='Original Signal')
@@ -138,13 +138,15 @@ def plot_spectral_densities(freqs, psd, filtered_frequencies, filtered_psd, fs, 
     """
 
     # Plot the original and filtered signals
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(6, 3))
 
     # Plot the power spectral density
     plt.subplot(1, 1, 1)
     plt.plot(freqs[:int(freqs.size/2)], psd[:int(freqs.size/2)], label='Original PSD')
     plt.plot(filtered_frequencies, filtered_psd, 'ro', label='Filtered PSD Peaks')
     plt.title('Power Spectral Density - ' + label)
+    plt.axvline(x=0.04, color='r', linestyle='--', label='0.04Hz')
+    plt.axvline(x=0.7, color='r', linestyle='--', label='0.7Hz')
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Power/Frequency')
     plt.legend()
@@ -196,7 +198,7 @@ def random_resample(original_sample, n_resamples=1000):
     
     return resamples
 
-def plot_normalized_histogram(data, bins=100):
+def plot_normalized_histogram(data, label, bins=100):
     """
     Automates the simple plotting of an histogram.
 
@@ -215,7 +217,7 @@ def plot_normalized_histogram(data, bins=100):
 
     plt.xlabel('Value')
     plt.ylabel('Probability Density')
-    plt.title('Normalized Histogram')
+    plt.title(label)
     
     plt.show()
 
@@ -275,7 +277,7 @@ def generate__continuously_variable_signal(frequencies, scale, fft_coefficients,
     result = []
     freq = np.array(frequencies)
     fft_coef = np.array(fft_coefficients)
-    ## t = np.arange(0, n, 1/fs)  # Time array
+    ##t = np.arange(0, n, 1/fs)  # Time array
     t = np.linspace(0, n/fs, num=n, endpoint=True, dtype=None, axis=0)
     scale_index = range(n)
     element = 0
@@ -285,7 +287,7 @@ def generate__continuously_variable_signal(frequencies, scale, fft_coefficients,
 
         for j in range(len(frequencies)):
 
-            element += fft_coef[j] * np.exp(1j * 2 * np.pi * freq[j] * i* scale[index])
+            element += fft_coef[j] * np.exp(1j * 2 * np.pi * freq[j] * i)# * scale[index])
 
         result.append(element/(len(t)))
     
